@@ -1,7 +1,7 @@
 <?php
 
 ini_set('display_errors', 'On');
-live
+//live;
 
 define ("DB_NAME", "steam");
 define ("DB_USERNAME", "root");
