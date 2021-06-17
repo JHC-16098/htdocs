@@ -2,6 +2,19 @@
 
 <html lang="en">
 
+	<?php
+		session_start();
+		include("config.php");
+
+		//Connect to steam database
+		$dbconnect=mysqli_connect(DB_HOST,DB_USERNAME,DB_PASSWORD,DB_NAME);
+
+		if(mysqli_connect_errno()) {
+			echo "Connection failed: ".mysqli_connect_error();
+			exit;
+		}
+	?>
+	
 	<head>
 		<meta charset="utf-8">
 		
