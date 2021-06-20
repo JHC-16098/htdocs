@@ -1,11 +1,11 @@
-<?php include("topbit.php") ?>
+<?php include("topbit.php")?>
 			
-			<div class="box main">
-				<h2>Welcome</h2>
+	<div class="box main">
+	<h2>Welcome</h2>
 				
-				<p>
-					Put link to original dataset here
-				</p>
-			</div> <!-- / main -->
+		<p>
+			Put link to original dataset here
+		</p>
+	</div> <!-- / main -->
 			
-			<?php include("bottombit.php");
+<?php include("bottombit.php");
