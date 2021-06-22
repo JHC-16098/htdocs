@@ -17,6 +17,7 @@
 	
 	<head>
 		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		
 		<!-- For assessment you need to change these -->
 		<meta name="description" content="games, apps, ">
@@ -31,6 +32,12 @@
 		
 		<link rel="stylesheet" href="css/font-awesome.min.css">
 		<link rel="stylesheet" href="css/data_style.css"> <!--custom style sheet -->
+
+		<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+		<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+		
+		
+		<script src="https://kit.fontawesome.com/736c9b8d86.js" crossorigin="anonymous"></script>
 	</head>
 	
 	<body>
