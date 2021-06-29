@@ -157,7 +157,7 @@ a.side:hover {color:#8a1737; }
     }
 
 .pos_reviews {
-    background-color: #1a8b33;
+    background-color: #1abd4b;
     color:#ffffff;
     border-radius: 5px;
     padding: 5px;
@@ -167,6 +167,15 @@ a.side:hover {color:#8a1737; }
 
 .neg_reviews {
     background-color: #e22908;
+    color:#ffffff;
+    border-radius: 5px;
+    padding: 5px;
+    display: inline-block;
+
+}
+
+.mix_reviews {
+    background-color: #df6f14;
     color:#ffffff;
     border-radius: 5px;
     padding: 5px;
@@ -250,7 +259,62 @@ a.side:hover {color:#8a1737; }
 
 }
 
+.review_bar {
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    color: white;
+    border-radius: 3px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /*appearance: none;*/
+    border: none;
+}
 
+.review_bar {
+  color: #fff;
+  background-color: #de4d21;
+  border-radius: 5px;
+}
 
+.review_bar::-webkit-progress-value {
+  background: #1abd4b;
+  border-radius: 5px 0px 0px 5px;
+}
 
+.review_bar::-moz-progress-bar {
+  background: #1abd4b;
+  border-radius: 5px 0px 0px 5px;
+}
 
+.review_bar::-webkit-progress-value {
+  background: #1abd4b;
+  border-radius: 5px 0px 0px 5px;
+}
+
+.review_bar::-webkit-progress-bar {
+  background: #1abd4b;
+  border-radius: 5px 0px 0px 5px;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+    float: right;
+}
+
+.review_box {
+    background-color: #042952;
+    color:#ffffff;
+    border-color: #fff;
+    border: 1px;
+    border-radius: 5px;
+    padding: 5px;
+    display: inline-block;
+    text-decoration: none;
+    font-size: 15px;
+    
+
+}

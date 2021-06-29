@@ -5,7 +5,7 @@ JOIN genre ON (game_details.GenreID = genre.genre_id)
 JOIN developer ON (game_details.devID = developer.devID)
 JOIN publisher ON (game_details.pubID = publisher.pubID)
 JOIN descriptions ON (game_details.appid = descriptions.appid)
-LIMIT 25
+LIMIT 500
 ";
 
 $find_query = mysqli_query($dbconnect, $find_sql);
@@ -36,10 +36,10 @@ $count = mysqli_num_rows($find_query);
                 <div class="results">
                     <h2><?php echo $find_rs['name']; ?></h2>
                     <div class="tags"> 
-                    <?php echo "Developer: ".$find_rs['developer']; ?>
+                    <?php echo "Developed by ".$find_rs['developer']; ?>
                     </div>
                     <div class="tags">
-                    <?php echo "Publisher: ".$find_rs['publisher']; ?>
+                    <?php echo "Published by ".$find_rs['publisher']; ?>
                     </div>
                     <br>
                     <br>
@@ -90,7 +90,8 @@ $count = mysqli_num_rows($find_query);
                     $pos_ratings = $find_rs['positive_ratings'];
                     $neg_ratings = $find_rs['negative_ratings'];
                     $num_ratings = $pos_ratings + $neg_ratings;
-                    if($pos_ratings>$neg_ratings) {
+                    /*
+                    if(($pos_ratings/$num_ratings)*100>65) {
                         ?>
                         <div class="pos_reviews">
                         <?php echo (round(($pos_ratings/$num_ratings)*100)."% Positive Reviews"); ?>
@@ -98,15 +99,67 @@ $count = mysqli_num_rows($find_query);
                         <?php
 
                     }
-                    elseif($pos_ratings<$neg_ratings){
+                    elseif(($pos_ratings/$num_ratings)*100<35){
                         ?>
                         <div class="neg_reviews">
                         <?php echo (round(($neg_ratings/$num_ratings)*100)."% Negative Reviews"); ?>
                         </div>
                         <?php
-
                     }
-                    elseif($num_ratings == 0){
+                    elseif((($pos_ratings/$num_ratings)*100>35) && (($pos_ratings/$num_ratings)*100<65)) {
+                        
+                        if($pos_ratings>$neg_ratings) {
+                            ?>
+                            <div class="mix_reviews">
+                            <?php echo("Mixed Reviews - ".(round(($pos_ratings/$num_ratings)*100)."% Positive")); ?>
+                            </div>
+                            <?php
+                        }
+                        elseif($neg_ratings>$neg_ratings) {
+                            ?>
+                            <div class="mix_reviews">
+                            <?php
+                            echo ("Mixed Reviews - ".(round(($neg_ratings/$num_ratings)*100)."% Negative"));
+                            ?>
+                            </div>
+                            <?php
+                        }
+                        ?>
+                        <?php
+                    }
+                    */
+                    
+                    $pos_percent = ($pos_ratings/$num_ratings)*100;
+                    ?>
+        
+                    
+                   <a class="applink_a" href="https://store.steampowered.com/app/<?php echo $find_rs['appid'];?>"><i class="fab fa-steam"></i> STEAM</a>
+                   <br>
+                   <br>
+                    <div class="review_box">
+                    </h3><?php echo $num_ratings?> reviews</h3>
+                    <br>
+
+                    <progress class="review_bar" max="100" value=<?php echo $pos_percent?>><span></span></progress>
+                    <br>
+                    <br>
+                    <div class="pos_reviews"> <?php echo $pos_ratings?> Positive </div> <div class="neg_reviews"> <?php echo $neg_ratings ?> Negative </div>
+                    <?php 
+                    /*
+                        if($pos_percent<50) {
+                            echo round((($neg_ratings/$num_ratings)*100))."% Negative"; 
+                        }
+                        elseif($pos_percent>=50) {
+                            echo round($pos_percent)."% Positive";
+                        }
+                        */
+                    ?>
+                    
+                    </div>
+                    <?php
+
+                    /*
+                    if($num_ratings == 0){
                         ?>
                         <div class="no_reviews">
                         <?php echo "No Reviews"; ?>
@@ -120,18 +173,17 @@ $count = mysqli_num_rows($find_query);
                         </div>
                         <?php
                     }
+                    */
                     ?> 
                     
-                    <br>
-                    <br>
-                    
-                   <a class="applink_a" href="https://store.steampowered.com/app/<?php echo $find_rs['appid'];?>"><i class="fab fa-steam"></i> STEAM</a>
+                   
                    <br>
                    <br>
                    <div class="description">
                    <?php 
                    
                    $about = $find_rs['About'];
+                   $about = str_replace("â€”", "-", $about);
                    echo str_replace("â€™", "'", $about);
                    
                    ?>
