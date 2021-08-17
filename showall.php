@@ -1,22 +1,124 @@
-<?php include("topbit.php");
+<?php include("topbit.php"); 
+$platform_link = $_GET['platforms'];
+$page = $_GET['page'];
+if(empty($page)){
+    $page = 0;
+}
+$extraVars = "";
+$platform_t = $_GET['platforms'];
+$search = $_GET['search'];
+$sort_field = $_GET['s_column'];
+$sort_type = $_GET['s_order'];
+$s_c_text = strval($sort_field);
+$s_msg = $_GET['s_msg'];
+$s_o_text = strval($sort_type);
+$tag = $_GET['tag'];
+$tag_message = $_GET['message'];
+$id = 0;
+    foreach($_GET AS $key=>$value) {
+        $extraVars .= '<input type="hidden" name="'.$key.'" value="'.$value.'" />';
+    }
 
-$find_sql = "SELECT * FROM `game_details`
-JOIN genre ON (game_details.GenreID = genre.genre_id)
-JOIN developer ON (game_details.devID = developer.devID)
-JOIN publisher ON (game_details.pubID = publisher.pubID)
-JOIN descriptions ON (game_details.appid = descriptions.appid)
-LIMIT 500
+$find_sql = "SELECT *, ROUND(positive_ratings/(positive_ratings + negative_ratings)*100.0) AS positive_percentage, (positive_ratings + negative_ratings) AS num_ratings FROM `game_details`  
+INNER JOIN genre ON (game_details.GenreID = genre.genre_id)
+INNER JOIN developer ON (game_details.devID = developer.devID)
+INNER JOIN publisher ON (game_details.pubID = publisher.pubID)
+WHERE steamspy_tags LIKE '%$tag%' AND name LIKE '%$search%' AND platforms LIKE '%$platform_t%'
+ORDER BY $sort_field $sort_type
+LIMIT $page, 25
 ";
+$count_sql = "SELECT *, ROUND(positive_ratings/(positive_ratings + negative_ratings)*100.0) AS positive_percentage, (positive_ratings + negative_ratings) AS num_ratings FROM `game_details`  
+INNER JOIN genre ON (game_details.GenreID = genre.genre_id)
+INNER JOIN developer ON (game_details.devID = developer.devID)
+INNER JOIN publisher ON (game_details.pubID = publisher.pubID)
+WHERE steamspy_tags LIKE '%$tag%' AND name LIKE '%$search%' AND platforms LIKE '%$platform_t%'
+ORDER BY $sort_field $sort_type";
 
-$find_query = mysqli_query($dbconnect, $find_sql);
+$find_rows = mysqli_query($dbconnect, $count_sql) or die(mysqli_error($dbconnect));
+$find_query = mysqli_query($dbconnect, $find_sql) or die(mysqli_error($dbconnect));
 $find_rs = mysqli_fetch_assoc($find_query);
-$count = mysqli_num_rows($find_query);
+$count = mysqli_num_rows($find_rows);
 
 ?>
 			
 	<div class="box main">
+    
 	<h2>Results</h2>
+    <form name="search" action="showall.php" onsubmit="return validateSearch()" method="get">
+    <?php echo $extraVars;?>
+		Search: <input class="tags" type="text" value="<?php echo $search?>" name="search">
+		<input class="taglink" value="🔎" type="submit">
+		</form>
+        <br>
+        <br>
+    <div class="tags">
+    <?php echo str_replace("'", "", $tag_message) ?>
+    </div>
+    <div class="tags">
+    
+    
+        Platform: <?php 
 
+        $platform_link_msg = $platform_link;
+
+        if(str_contains($platform_link_msg, 'windows')) {
+            $platform_link_msg = str_replace("windows", "<i class=\"fab fa-windows\"></i>", $platform_link_msg);
+            
+        } 
+        if(str_contains($platform_link_msg, 'mac')) {
+            $platform_link_msg = str_replace("mac", "<i class=\"fab fa-apple\"></i>", $platform_link_msg);
+            
+        } 
+        if(str_contains($platform_link_msg, 'linux')) {
+            $platform_link_msg = str_replace("linux", "<i class=\"fab fa-linux\"></i>", $platform_link_msg);
+            
+        } 
+        
+        echo $platform_link_msg ?>
+    
+    
+    </div>
+    <div class="dropdown">
+    <button onclick="myFunction()" class="dropbtn">Sort by: <?php echo $s_msg ?></button>
+    <div id="myDropdown" class="dropdown-content">
+        <a href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=name&s_order=ASC&s_msg=Name A -> Z&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>&page=<?php echo $page ?>">Name A -> Z</a>
+        <a href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=name&s_order=DESC&s_msg=Name Z -> A&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>&page=<?php echo $page ?>">Name Z -> A</a>
+        <a href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=price&s_order=DESC&s_msg=Name Price High -> Low&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>&page=<?php echo $page ?>">Price High -> Low</a>
+        <a href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=price&s_order=ASC&s_msg=Name Price Low -> High&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>&page=<?php echo $page ?>">Price Low -> High</a>
+        <a href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=positive_percentage DESC,&s_order=num_ratings DESC&s_msg=Reviews High -> Low&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>&page=<?php echo $page ?>">Reviews High -> Low</a>
+        <a href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=positive_percentage ASC,&s_order=num_ratings DESC&s_msg=Reviews Low -> High&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>&page=<?php echo $page ?>">Reviews Low -> High</a>
+        <a href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=num_ratings&s_order=DESC&s_msg=Popularity&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>&page=<?php echo $page ?>">Popularity</a>
+    </div>
+    </div>
+    <a class="tags" href="showall.php?message=All Games&s_column=appid&s_order=ASC&page=<?php echo $page ?>">Clear All</a> 
+    <br>
+    <br>
+    <?php $page_platform = $platform_link; ?>
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=0"><i class="fas fa-angle-double-left"></i></a> 
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=<?php 
+
+    if($page == 0){
+        echo $page;
+    } 
+    else {
+        echo ($page - 25);
+    }
+    ?>"><i class="fas fa-angle-left"></i></a> 
+    <div class="tags"><?php echo ($page/25 + 1) ?></div> 
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=<?php
+        
+        if(($page+25) >= $count) {
+            echo ($count-25);
+        }
+        else{
+            echo ($page + 25);
+        }
+        
+    
+    ?>"><i class="fas fa-angle-right"></i></a>
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=<?php echo ($count - 25)?>"><i class="fas fa-angle-double-right"></i></a> 
+    <br>
+    <br>
     <?php 
     
         if($count < 1) {
@@ -34,7 +136,14 @@ $count = mysqli_num_rows($find_query);
             {
                 ?>
                 <div class="results">
-                    <h2><?php echo $find_rs['name']; ?></h2>
+                    <a class="deslink_a" href="showdescription.php?id=<?php echo $find_rs['appid'] ?>"><?php echo str_replace('Â®', '®', $find_rs['name']); ?></a>
+                    <br>
+                    <br>
+                    <div class="tags">
+                        <?php echo "$".$find_rs['price']; ?>
+                    </div>
+                    <br>
+                    <br>
                     <div class="tags"> 
                     <?php echo "Developed by ".$find_rs['developer']; ?>
                     </div>
@@ -49,11 +158,9 @@ $count = mysqli_num_rows($find_query);
                     $tags = $find_rs['steamspy_tags'];
                     $tag_array = explode(";", $tags);
                     //$num_tags = sizeof($tag_array);
-                    foreach($tag_array as $tag) {
-                        ?>
-                        <div class="tags">
-                            <?php echo $tag; ?>
-                        </div>
+                    foreach($tag_array as $tag_link) {
+                        ?>    
+                            <a class="taglink" href="showall.php?tag=<?php echo $tag_link ?>&message=Filtering by: <?php echo $tag_link ?>&s_column=<?php echo $s_c_text ?>&s_order=<?php echo $s_o_text ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>"><?php echo $tag_link; ?></a>
                         <?php
                     }
                     
@@ -66,26 +173,37 @@ $count = mysqli_num_rows($find_query);
                     
                     if(str_contains($platforms, 'windows')) {
                         $platforms = str_replace("windows", "<i class=\"fab fa-windows\"></i>", $platforms);
+                        
                     } 
                     if(str_contains($platforms, 'mac')) {
                         $platforms = str_replace("mac", "<i class=\"fab fa-apple\"></i>", $platforms);
+                        
                     } 
                     if(str_contains($platforms, 'linux')) {
                         $platforms = str_replace("linux", "<i class=\"fab fa-linux\"></i>", $platforms);
+                        
                     } 
                     
                     $platform_array = explode(";", $platforms);
                     foreach ($platform_array as $platform) {
-                        ?>
-                        <div class="tags">
-                            <?php echo $platform; ?>
-                        </div>
+                        $platform_link = "";
+                        if(str_contains($platform, "windows")) {
+                            $platform_link="windows";
+                        }
+                        if(str_contains($platform, "apple")) {
+                            $platform_link="mac";
+                        }
+                        if(str_contains($platform, "linux")) {
+                            $platform_link="linux";
+                        }
+
+                    ?>
+                        <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $s_c_text ?>&s_order=<?php echo $s_o_text ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search?>&platforms=<?php echo $platform_link ?>"><?php echo $platform ?></a>
                         <?php
                     }
                     //echo "[ ".str_replace(";", " ]   [ ", $platforms)." ]";
                 ?> 
-                <br> 
-                <br>
+ 
                 <?php 
                     $pos_ratings = $find_rs['positive_ratings'];
                     $neg_ratings = $find_rs['negative_ratings'];
@@ -133,31 +251,10 @@ $count = mysqli_num_rows($find_query);
                     ?>
         
                     
-                   <a class="applink_a" href="https://store.steampowered.com/app/<?php echo $find_rs['appid'];?>"><i class="fab fa-steam"></i> STEAM</a>
-                   <br>
-                   <br>
-                    <div class="review_box">
-                    </h3><?php echo $num_ratings?> reviews</h3>
-                    <br>
-
-                    <progress class="review_bar" max="100" value=<?php echo $pos_percent?>><span></span></progress>
-                    <br>
-                    <br>
-                    <div class="pos_reviews"> <?php echo $pos_ratings?> Positive </div> <div class="neg_reviews"> <?php echo $neg_ratings ?> Negative </div>
-                    <?php 
-                    /*
-                        if($pos_percent<50) {
-                            echo round((($neg_ratings/$num_ratings)*100))."% Negative"; 
-                        }
-                        elseif($pos_percent>=50) {
-                            echo round($pos_percent)."% Positive";
-                        }
-                        */
-                    ?>
                     
-                    </div>
-                    <?php
 
+
+<?php
                     /*
                     if($num_ratings == 0){
                         ?>
@@ -175,23 +272,11 @@ $count = mysqli_num_rows($find_query);
                     }
                     */
                     ?> 
-                    
-                   
-                   <br>
-                   <br>
-                   <div class="description">
-                   <?php 
-                   
-                   $about = $find_rs['About'];
-                   $about = str_replace("â€”", "-", $about);
-                   echo str_replace("â€™", "'", $about);
-                   
-                   ?>
-                   </div>
+
+
                    
                </div>
-               <br />
-
+                    <br>
                <?php 
             }
             while($find_rs=mysqli_fetch_assoc($find_query));
@@ -199,7 +284,27 @@ $count = mysqli_num_rows($find_query);
     
     ?>
 
-	
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=0"><i class="fas fa-angle-double-left"></i></a> 
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=<?php 
+    if($page == 0){
+        echo $page;
+    } 
+    else {
+        echo ($page - 25);
+    }
+    ?>"><i class="fas fa-angle-left"></i></a> 
+    <div class="tags"><?php echo ($page/25 + 1) ?></div> 
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=<?php 
+    
+    if(($page+25) > $count) {
+        echo ($count-25);
+    }
+    else{
+        echo ($page + 25);
+    }
+    
+    ?>"><i class="fas fa-angle-right"></i></a>
+    <a class="taglink" href="showall.php?tag=<?php echo $tag ?>&message=Filtering by: <?php echo $tag ?>&s_column=<?php echo $sort_field?>&s_order=<?php echo $sort_type ?>&s_msg=<?php echo $s_msg ?>&search=<?php echo $search ?>&platforms=<?php echo $page_platform ?>&page=<?php echo ($count - 25)?>"><i class="fas fa-angle-double-right"></i></a> 
 	</div> <!-- / main -->
 			
 <?php include("bottombit.php");

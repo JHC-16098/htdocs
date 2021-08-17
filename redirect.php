@@ -1,0 +1,1 @@
+<?php header("Location: showall.php?message=All") ?>
